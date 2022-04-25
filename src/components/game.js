@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import calculateWinner from '../helpers'
+import React from 'react';
+import calculateWinner from '../helpers';
 import Board from './board'
 
 const styles = {
@@ -7,59 +7,64 @@ const styles = {
     margin: '20px auto'
 }
 
-let i = 0;
-
-const Game = () => {
-    const [history, setHist] = useState([Array(9).fill(null)]);
-    const [index, setIndex] = useState(0);
-    const [xIsNext, setXisNext] = useState(true);
-    const winner = calculateWinner(history[index]);
-
-    const handleClick = (i) => {
-        const timeInHistory = history.slice(0,index + 1);
-        const current = timeInHistory[timeInHistory.length - 1];
-        const squares = [...current];
-        // If user clicks on occupied square do nothing
-        if (winner || squares[i]) return;
-        // else set X or O depending on whose turn is next
-        squares[i] = xIsNext ? 'X' : 'O';
-        setXisNext(!xIsNext);
-        setHist([...timeInHistory, squares]);
-        setIndex(timeInHistory.length);
-    }
-
-    const restart = () => (
-        <button onClick={() => {
-            setIndex(0);
-            setHist([Array(9).fill(null)]);
-        }}>Restart</button>
-    )
-
-    const prevBoardState = () => {
-        setIndex(index - 1 <= 0 ? 0 : index - 1);
-        setXisNext(!xIsNext);
-        //setBoard(history[index]);
-    }
-    const nextBoardState = () => {
-        if (index < history.length - 1) {
-            setIndex(index + 1);
-            setXisNext(!xIsNext);
+class Game extends React.Component {
+    constructor(props) {
+        super(props);
+        const turnXNext = Math.random() > 0.5 ? true : false;
+        this.state = {
+            turnXNext:turnXNext,
+            squares:Array(9).fill(null),
+            winner:null
         }
-        
-        //setBoard(history[index]);
+        this.setState = this.setState.bind(this);
+        //console.log('New game created.');
     }
 
-    return (
-        <>
-            <Board squares={history[index]} onClick={handleClick} />
-            <div style={styles}>
-                <p>{winner ? 'Winner:' + winner : 'Next player: ' + (xIsNext ? 'X' : 'O')}</p>
-                <button onClick={prevBoardState}>Prev</button>
-                {restart()}
-                <button onClick={nextBoardState}>Next</button>
+    handler = () => {
+        // check winning condition
+        if (this.state.winner) {
+            //console.log('we have a winner!')
+        } else {
+            //console.log(this.state.squares);
+
+            this.setState({
+                turnXNext:!this.state.turnXNext,
+                winner:calculateWinner(this.state.squares)
+            })
+        }
+
+    }
+
+     Status() {
+        let msg = '';
+        if (this.state.winner) {msg += this.state.winner + ' Won!';}
+        else {msg += 'Next player turn: ' + (this.state.turnXNext ? 'X' : 'O')}
+        return (
+            msg
+        );
+    }
+
+    restart = () => {
+        this.setState({
+            squares:Array(9).fill(null),
+            winner:null
+        })
+    }
+
+    render() {
+        return (
+            <div style={styles} className='game'>
+                <h1>
+                    Tic-Tac-Toe
+                </h1>
+                <div className='game-board'>
+                    <Board turnXNext={this.state.turnXNext} handler={this.handler} parentState={this.state} setState={this.setState}/>
+                </div>
+                <h3>{this.Status()}</h3>
+                <button onClick={this.restart}>Restart</button>
             </div>
-        </>
-    )
+        )
+    }
 }
 
 export default Game;

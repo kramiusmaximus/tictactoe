@@ -11,12 +11,32 @@ const style = {
 }
 
 
-const Board = ({squares, onClick}) => (
-    <div style={style}>
-        {squares.map((square, i) => (
-                <Square key={i} value={square} onClick={() => onClick(i)} />
-            ))}
-    </div>
-)
+class Board extends React.Component {
+
+    handleClick(i) {
+        const newStateSquares = this.props.parentState.squares.slice();
+        if (newStateSquares[i] == null && !this.props.parentState.winner) {
+            newStateSquares[i] = this.props.turnXNext ? 'X' : 'O';
+            this.props.setState({squares:newStateSquares}, this.props.handler);
+        }
+    }
+
+    renderSquare(i) {
+        return (
+            <Square key={'Square ' + i} value={this.props.parentState.squares[i]} onClick={() => this.handleClick(i)}/>
+        )
+    }
+
+    render() {
+        return (
+        <div style={style}>
+            {
+                this.props.parentState.squares.map((square, i) => {
+                    return this.renderSquare(i);
+                })
+            }
+        </div>)
+    }
+}
 
 export default Board;

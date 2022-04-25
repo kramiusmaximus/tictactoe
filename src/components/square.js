@@ -9,10 +9,17 @@ const style = {
     outline: 'none'
 }
 
-const Square = ({onClick, value}) => (
-    <button style={style} onClick={onClick}>
-        {value}
-    </button>
-)
+class Square extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+    render() {
+        return (
+            <button style={style} className='square' onClick={this.props.onClick}>
+                {this.props.value}
+            </button>
+        )
+    }
+}
 
 export default Square;
